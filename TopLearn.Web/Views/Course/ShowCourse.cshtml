@@ -1,0 +1,295 @@
+﻿@using TopLearn.Core.Convertors;
+@using TopLearn.Core.Service.Interface;
+@using TopLearn.Core.Service;
+@using TopLearn.DataLayer.Entities.Course;
+@model TopLearn.DataLayer.Entities.Course.Course
+@{
+    ViewData["Title"] = Model.CourseTitle;
+    bool IsUserInCourse = false;
+    if (User.Identity.IsAuthenticated && ViewBag.NotAccess == null)
+    {
+        IsUserInCourse = _OrderService.IsUserInCourse(User.Identity.Name,Model.CourseId);
+    }
+    string filePath = ViewBag.filePath as string;
+}
+@inject IOrderService _OrderService;
+
+
+
+
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#"> تاپ لرن </a></li>
+            <li class="breadcrumb-item active"><a href="/course"> دوره ها </a></li>
+            <li class="breadcrumb-item active" aria-current="page"> @Model.CourseTitle </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="container">
+    <section class="term-content">
+        <header><h1> @Model.CourseTitle </h1></header>
+        <div class="row">
+
+            <div class="col-md-8 col-sm-12 col-xs-12 pull-left">
+                <section class="term-description">
+                    <img src="/Course/image/@Model.CourseImageName">
+
+                    @Html.Raw(Model.CourseDescription);
+                    @if (!IsUserInCourse)
+                    {
+                        <div class="alert alert-info">
+                            <p>برای استفاده از قسمت ها در دوره ثبت نام ، و فاکتور خود را تایید کنید</p>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.DemoFileName))
+                    {
+                        <video style="width:100%" controls poster="/Course/image/@Model.CourseImageName">
+                            <source src="/Course/demo/@Model.DemoFileName">
+                        </video>
+                    }
+                    <h2> سرفصل های این دوره : </h2>
+
+                    @if(ViewBag.Episode != null)
+                    {
+                        CourseEpisode episode =  ViewBag.Episode as CourseEpisode;
+
+                       
+
+                        <h2>@episode.EpisodeTitle</h2>
+                        <video style="width:100%" controls >
+                            <source src="@filePath"> 
+                        </video>
+                    }
+
+                    <ul>
+                        @foreach (var item in Model.CourseEpisodes)
+                        {
+                            <li>
+                                
+                                @if(item.IsFree || IsUserInCourse)
+                                {
+                                    <h3>
+                                        <a href="/DownloadFile/@item.EpisodeId">
+                                             @item.EpisodeTitle
+                                        </a>
+                                    </h3>
+                                }
+                                else
+                                {
+                                    <h3>
+                                        
+                                            @item.EpisodeTitle
+                                       
+                                    </h3>
+                                    
+                                }
+
+                                
+                                @if (item.IsFree)
+                                {
+                                    <i>رایگان</i>
+                                }
+                                else
+                                {
+                                    <i>نقدی</i>
+                                }
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    if(item.IsFree || IsUserInCourse)
+                                    {
+                                        <a href="/ShowCourse/@Model.CourseId?episode=@item.EpisodeId">تماشا</a>
+                                    }
+
+                                }
+                                <span style="font-size:15px">@item.EpisodeTime</span>
+
+                            </li>
+
+
+                        }
+                    </ul>
+                    <div id="vot">
+                    </div>
+                </section>
+               
+                <section class="user-comments">
+
+                    <header><h3> نظرات کاربران </h3></header>
+                    <div class="inner">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <form asp-controller="Course" asp-action="CreateComment"
+                                  data-ajax="true"
+                                  data-ajax-method="post"
+                                  data-ajax-mode="replace"
+                                  data-ajax-update="#listComment"
+                                  data-ajax-success="Success"
+                                  data-ajax-pageComment=PageComment>
+                                <input type="hidden" id="comment_CourseId" name="comment.CourseId" value="@Model.CourseId" />
+
+                                <div class="row">
+
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <div class="form-group">
+                                            <textarea class="form-control"  name="comment.Comment" placeholder="متن نظر"></textarea>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <button type="submit" class="btn btn-success"> ثبت دیدگاه </button>
+                                    </div>
+                                </div>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger">
+                                برای ثبت نظر ابتدا <a href="/Register">ثبت نام</a> کنید
+                            </div>
+                        }
+
+                        <div class="comment-list" id="listComment">
+                            
+                            
+
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" aria-label="Previous">
+                                            <span aria-hidden="true"><i class="zmdi zmdi-chevron-right"></i></span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" aria-label="Next">
+                                            <span aria-hidden="true"><i class="zmdi zmdi-chevron-left"></i></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="col-md-4 col-sm-12 col-xs-12 pull-right">
+                <div class="statistics">
+                    <ul>
+                        <li>
+                            <span>
+                                مدت دوره
+                            </span>
+                            @{
+                                TimeSpan time = new TimeSpan(Model.CourseEpisodes.Sum(e => e.EpisodeTime.Ticks));
+                            }
+                            <i>@time</i>
+                        </li>
+
+
+                        <li>
+                            <span> تعداد ویدیوها </span>
+                            <i> @Model.CourseEpisodes.Count </i>
+                        </li>
+                        <li>
+                            <span> تعداد دانشجوها </span>
+                            <i> @Model.UserCourses.Count </i>
+                        </li>
+                    </ul>
+                    @if(Model.CoursePrice != 0 &&!IsUserInCourse)
+                    {
+                        <a href="/course/BuyCourse/@Model.CourseId"> شرکت در دوره : @Model.CoursePrice.ToString("#,0") تومان </a>
+
+                    }
+                    @if(Model.CoursePrice==0)
+                    {
+                        <p style="margin-top:10px" class="alert alert-success">این دوره رایگان است</p>
+                    }
+                </div>
+
+                <article class="teacher-info">
+                    <img src="/Avatars/@Model.User.UserAvatar">
+                    <h2> مدرس : @Model.User.UserName </h2>
+                   
+                </article>
+
+                <article class="term-info">
+                    <h2> اطلاعات این دوره </h2>
+                    <ul>
+                        <li>سطح دوره: @Model.CourseLevel.LevelTitle</li>
+                        <li>وضعیت دوره: @Model.CourseStatus.StatusTitle</li>
+                        @if (Model.CoursePrice != 0)
+                        {
+                            <li><a style="margin:0px ;padding:5px" class="alert alert-success">قیمت : @Model.CoursePrice.ToString("#,0")</a></li>
+                        }
+                        else
+                        {
+                            <li><a style="margin:0px ;padding:5px" class="alert alert-success">قیمت : رایگان</a></li>
+                        }
+                        
+
+                        <li>تاریخ ثبت این دوره : @Model.CreateDate.ToShamsi()</li>
+                        <li>آخرین بروزرسانی دوره :@Model.UpdateDate?.ToShamsi()</li>
+                    </ul>
+                </article>
+               
+
+                <div class="share-layer">
+                    <span> به اشتراک گذاری </span>
+                    <a href=""><i class="zmdi zmdi-facebook"></i></a>
+                    <a href=""><i class="zmdi zmdi-google-old"></i></a>
+                    <a href=""><i class="zmdi zmdi-twitter"></i></a>
+                    <a href=""><i class="zmdi zmdi-linkedin"></i></a>
+                </div>
+                
+                @if(Model.Tags != null)
+                {
+                    <div class="tags-layer">
+                        @foreach(string tag in Model.Tags.Split('-', StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <a href="/course?filter=@tag">@tag</a>
+                        }
+                    </div>
+                }
+                <div class="btn btn-block btn-primary">
+                    <a style="color:white" asp-action="Index" asp-controller="Forum" asp-route-courseId=@Model.CourseId>پرسش و پاسخ</a>
+                </div>
+                
+
+            </aside>
+        </div>
+    </section>
+</div>
+
+@section Script{
+    <script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function Success() {
+            $("#comment_CourseId").val("");
+        }
+    
+        $(function () {
+            $("#listComment").load("/Course/ShowComment/" + @Model.CourseId);
+        });
+
+        function pageComment(pageId) {
+            $("#listComment").load("/Course/ShowComment/" + @Model.CourseId+"?pageId="+pageId);
+        }
+    
+        $(function () {
+            $("#vot").load("/Course/CourseVote/"+@(6))
+        });
+
+        function vote(vote) {
+            $("#vot").fadeOut('slow')
+            $("#vot").load("/Course/AddVote/" + @Model.CourseId+"?vote="+vote)
+            $("#vot").fadeIn('slow')
+        }
+
+    </script>
+    }

@@ -1,0 +1,82 @@
+﻿@using TopLearn.Core.Convertors;
+@using TopLearn.Core.Service.Interface;
+@using TopLearnDataLayer.Entities.Question;
+@inject ICourseService _CourseService;
+@inject IOrderService _OrderService;
+@model IEnumerable<Question>
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="inner">
+                <div class="panel" style="margin-top:10px">
+                    @if (ViewBag.CourseId != null)
+                    {
+                        var Course = _CourseService.GetCourseById((int)ViewBag.CourseId);
+
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            if(Course.CoursePrice == 0 || _OrderService.IsUserInCourse(User.Identity.Name,(int)ViewBag.CourseId))
+                            {
+                                <a asp-action="CreateQuestion" asp-route-id="@ViewBag.CourseId" style="margin:10px" class="btn btn-warning">
+                                    ثبت سوال
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger ">
+                                    شما دوره را خریداری نکرده اید
+                                </div>
+                            }
+
+                        }
+                        else
+                        {
+                            <div class="alert alert-danger">
+                                برای پرسیدن سوال اول <a href="/Login">وارد سایت </a> شوید
+                            </div>
+                        }
+                    }
+                    <form class="form-inline"   asp-action="Index" >
+                        <input type="text" placeholder="جستجوی سوال" class="form-control"  name="filter" />
+                        <button type="submit" class="btn btn-success">جستجو</button>
+                        <input type="hidden" name="courseId" value=@ViewBag.CourseId />
+                    </form>
+                </div>
+                @if (Model.Count() == 0)
+                {
+                    <div class="alert alert-danger"> پرسش و پاسخی برای این دوره یافت نشد</div>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <div class="panel" style="margin-top:15px">
+
+                            <div class="panel-heading">
+                                <h1 style="font-size:18px">
+                                    <a href="/Forum/ShowQuestion/@item.QuestionId">@item.Title</a>
+                                </h1>
+                                <p class="text-muted" style="margin-top:10px">
+                                    <a class="label label-success" href="/ShowCourse/@item.CourseId">@item.Course.CourseTitle</a>  |
+                                    <span class="label label-primary">@item.User.UserName</span>
+                                    <span class="label label-warning pull-left">@item.CreateTime.ToShamsi()</span>
+                                </p>
+                            </div>
+
+
+
+                        </div>
+                    }
+                }
+               
+            </div>
+        </div>
+    </div>
+</div>
+

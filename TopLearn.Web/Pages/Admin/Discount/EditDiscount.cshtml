@@ -1,0 +1,69 @@
+﻿@page "{id}"
+@model TopLearn.Web.Pages.Admin.Discount.EditDiscountModel
+@using TopLearn.Core.Convertors;
+@{
+    ViewData["Title"] = "ویرایش کد تخفیف";
+  
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">افزودن کد تخفیف جدید</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<div class="row">
+    <form method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Discount.DisCountId" />
+
+
+
+        <div class="form-group">
+            <label>کد تخفیف</label>
+            <input type="text" asp-for="Discount.DiscountCode" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label>درصد تخفیف</label>
+            <input type="text" asp-for="Discount.DiscountPerecnt" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>تعداد</label>
+            <input type="text" asp-for="Discount.UsableCount" class="form-control">
+        </div>
+        <div class="form-group">
+            <label style="margin-bottom:12px">تاریخ شروع</label>
+
+            <input id="Startdatepicker" name="Startdatepicker" value="@((Model.Discount.StartDate!=null)?Model.Discount.StartDate.Value.ToShamsi():"")" />
+
+        </div>
+        <div class="form-group">
+            <label style="margin-bottom:12px">تاریخ پایان</label>
+
+            <input id="Enddatepicker" value="@((Model.Discount.EndDate!=null)?Model.Discount.EndDate.Value.ToShamsi():"")" name="Enddatepicker" />
+
+        </div>
+        <input type="submit" value="ذخیره اطلاعات" class="btn btn-success" />
+
+    </form>
+</div>
+
+
+@section Script{
+    <link href="http://cdn.kendostatic.com/2013.2.918/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="http://cdn.kendostatic.com/2013.2.918/styles/kendo.default.min.css" rel="stylesheet" />
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="/js/kendo.all.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // create DatePicker from input HTML element
+            $("#Startdatepicker").kendoDatePicker();
+            $("#Enddatepicker").kendoDatePicker();
+        });
+
+    </script>
+}

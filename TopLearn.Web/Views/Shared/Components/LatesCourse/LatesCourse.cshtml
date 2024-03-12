@@ -1,0 +1,12 @@
+﻿@using TopLearn.Core.DTOs.Courses;
+@using TopLearn.DataLayer.Entities.Course;
+@model Tuple< List<TopLearn.Core.DTOs.Courses.ShowCourseItemListViewModel>,int>
+@{
+    List<ShowCourseItemListViewModel> list=Model.Item1;
+
+}
+
+@foreach (var item in Model.Item1)
+{
+    <partial name="_BoxCourse" model="@item" />
+}

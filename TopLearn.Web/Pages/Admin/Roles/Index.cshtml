@@ -1,0 +1,288 @@
+﻿@page 
+@using TopLearn.Core.Convertors
+@using TopLearn.DataLayer.Entities.Permissions;
+
+@model TopLearn.Web.Pages.Admin.Roles.IndexModel
+@{
+    List<Permission> permissions = ViewData["Permission"] as List<Permission>;
+    List<RolePermission> rolePermissions = ViewData["SelectedPermission"] as List<RolePermission>;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">نقش های کاربران</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    لیست نقش های سایت
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline" role="grid">
+                            
+                            <div class="col-md-12" style="margin: 5px 0;">
+                                
+                                <button class="btn btn-outline btn-success" data-toggle="modal" data-target="#myModal">افزودن نقش جدید</button>
+                                
+                                <form method="post">
+
+                                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                <h4 class="modal-title" id="myModalLabel">افزودن نقش</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        عنوان نقش
+                                                           
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="col-sm-5 col-md-12">
+
+                                                            <input type="text" name="AddRoleTitle" class="form-control" placeholder="نقش مورد نظر" />
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.panel-body -->
+                                                </div>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        اضافه کردن دسترسی ها
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <ui>
+                                                                @foreach(var permission in permissions.Where(p => p.ParentID==null))
+                                                                {
+                                                                    <li>
+                                                                        <input type="checkbox" name="SelectedPermission" value="@permission.PermissionId"/>@permission.PermissionTitle
+                                                                        @if (permissions.Any(p => p.ParentID == permission.ParentID))
+                                                                        {
+                                                                            <ul>
+                                                                                @foreach(var sub in permissions.Where(p=>p.ParentID == permission.PermissionId))
+                                                                                {
+                                                                                    <li>
+                                                                                        <input type="checkbox" name="SelectedPermission" value="@sub.PermissionId"/>@sub.PermissionTitle
+                                                                                        @if (permissions.Any(p => p.ParentID == sub.ParentID))
+                                                                                        {
+                                                                                            <ul>
+                                                                                                @foreach(var sub2 in permissions.Where(p => p.ParentID == sub.PermissionId))
+                                                                                                {
+                                                                                                    <li>
+                                                                                                        <input type="checkbox" name="SelectedPermission" value="@sub2.PermissionId"/> @sub2.PermissionTitle
+                                                                                                    </li>
+                                                                                                }
+                                                                                            </ul>
+                                                                                        }
+                                                                                        
+                                                                                    </li>
+                                                                                }
+                                                                            </ul>
+                                                                        }
+
+                                                                    </li>
+                                                                }
+                                                            </ui>
+                                                    </div>
+                                                    <!-- /.panel-body -->
+                                                </div>
+
+                                            </div>
+                                            
+                                                <div class="modal-footer">
+                                                    <div class="row">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+
+                                                        <label for="btnElement-Create" class="custom-label-success btn-danger">
+                                                            <input id="btnElement-Create" type="submit" class="custom-button">
+                                                            <span class="label-text-success"> ثبت نقش</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                        </div>
+                                        <!-- /.modal-content -->
+                                    </div>
+                                    <!-- /.modal-dialog -->
+                                
+                                </div>
+                                    
+                                </form>
+
+                            </div>
+                            <table class="table table-striped table-bordered table-hover dataTable no-footer" id="dataTables-example" aria-describedby="dataTables-example_info">
+                                <thead>
+                                    <tr>
+                                        <th>نقش های سایت</th>
+                                       
+                                        <th>دستورات</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody >
+                                    @foreach (var role in Model.RolesList)
+                                    {
+                                        List<int> rp = rolePermissions.Where(p => p.RoleId == role.RoleId).Select(p => p.PermissionId).ToList();
+                                        
+
+
+
+                                         <tr class="success">
+                                             <td>@role.RoleTitle</td>
+                                           
+                                                
+                                           
+                                                <td>
+                                                <button class="btn btn-warning " data-toggle="modal" data-target="#myModal-@role.RoleId-@role.RoleId">
+                                                    ویرایش
+                                                </button>
+                                                
+                                                <div class="modal fade" id="myModal-@role.RoleId-@role.RoleId" role="dialog" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <form method="post">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                                <h4 class="modal-title" id="myModalLabel">ویرایش کاربر</h4>
+                                                            </div>
+                                                            
+                                                            <div class="modal-body">
+                                                                <div class="panel panel-default">
+                                                                    <div class="panel-heading">
+                                                                        تغییر نقش "@role.RoleTitle"
+
+                                                                    </div>
+                                                                    <div class="panel-body">
+                                                                        <div class="col-sm-5 col-md-12">
+
+                                                                            <input type="text" name="EditTitle" value="@role.RoleTitle" class="form-control" placeholder="نقش مورد نظر" />
+                                                                                <input type="hidden" name="EditRoleId" value="@role.RoleId" />
+                                                                        
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- /.panel-body -->
+                                                                </div>
+                                                                <div class="panel panel-default">
+                                                                    <div class="panel-heading">
+                                                                        اضافه کردن دسترسی ها
+                                                                    </div>
+                                                                    <div class="panel-body">
+                                                                            <ui>
+                                                                                @foreach (var permission in permissions.Where(p => p.ParentID == null))
+                                                                                {
+
+                                                                                    <li>
+                                                                                        <input type="checkbox" name="SelectedPermission" value="@permission.PermissionId" @((rp.Any(p => p ==permission.PermissionId)?"checked":"")) /> @permission.PermissionTitle
+                                                                                        @if (permissions.Any(p => p.ParentID == permission.ParentID))
+                                                                                        {
+                                                                                            <ul>
+                                                                                                @foreach (var sub in permissions.Where(p => p.ParentID == permission.PermissionId))
+                                                                                                {
+                                                                                                    <li>
+                                                                                                        <input type="checkbox" name="SelectedPermission" value="@sub.PermissionId" @((rp.Any(p => p == sub.PermissionId) ? "checked" : "")) />@sub.PermissionTitle
+                                                                                                        @if (permissions.Any(p => p.ParentID == sub.ParentID))
+                                                                                                        {
+                                                                                                            <ul>
+                                                                                                                @foreach (var sub2 in permissions.Where(p => p.ParentID == sub.PermissionId))
+                                                                                                                {
+                                                                                                                    <li>
+                                                                                                                        <input type="checkbox" name="SelectedPermission" value="@sub2.PermissionId" @((rp.Any(p => p == sub2.PermissionId) ? "checked" : "")) /> @sub2.PermissionTitle
+                                                                                                                    </li>
+                                                                                                                }
+                                                                                                            </ul>
+                                                                                                        }
+
+                                                                                                    </li>
+                                                                                                }
+                                                                                            </ul>
+                                                                                        }
+
+                                                                                    </li>
+                                                                                }
+                                                                            </ui>
+                                                                    </div>
+                                                                    <!-- /.panel-body -->
+                                                                </div>
+
+                                                            </div>
+                                                            
+                                                            <div class="modal-footer">
+                                                                <div class="row">
+                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+
+                                                                    <label for="btnElement-Edit-@role.RoleId" class="custom-label-success btn-danger">
+                                                                        <input id="btnElement-Edit-@role.RoleId" type="submit" class="custom-button">
+                                                                        <span class="label-text-success">  اعمال تغییرات </span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                        </form>
+                                                        <!-- /.modal-content -->
+                                                    </div>
+                                                    <!-- /.modal-dialog -->
+                                                 </div>
+                                                 
+                                                <button class="btn btn-danger " data-toggle="modal" data-target="#myModal-@role.RoleId">
+                                                    حذف
+                                                </button>
+                                                <div class="modal fade" id="myModal-@role.RoleId" role="dialog" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                                                <h4 class="modal-title" id="myModalLabel">حذف کاربر</h4>
+                                                            </div>
+                                                            <div class="modal-body zmdi-font">
+                                                                ایا از حذف  @role.RoleTitle اطمینان دارید ؟ 
+                                                            </div>
+                                                            <form method="post">
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                                                    <input type="hidden" value="@role.RoleTitle" name="TitleDelete" />
+                                                                    <label for="btnElement-Delete-@role.RoleId" class="custom-label-danger">
+                                                                        <input id="btnElement-Delete-@role.RoleId" type="submit" name="DeleteRoleId" value="@role.RoleId" class="custom-button-danger">
+                                                                        <span  class="label-text-danger"> حذف</span>
+                                                                    </label>
+                                                                </div>
+                                                            </form>
+                                                            
+                                                        </div>
+                                                        <!-- /.modal-content -->
+                                                    </div>
+                                                    <!-- /.modal-dialog -->
+                                                </div>
+                                                </td>
+                                    
+                                            </tr>
+                                    }
+                                </tbody>
+                           </table>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+   
+    
+</body>
+</html>
